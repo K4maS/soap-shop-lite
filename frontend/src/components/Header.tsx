@@ -23,6 +23,7 @@ export default function Header() {
           {user ? (
             <>
               <Link to="/orders" className="nav-link">Заказы</Link>
+              <Link to="/profile" className="nav-link">Профиль</Link>
               {user.role === 'ADMIN' && (
                 <Link to="/admin" className="nav-link">Админка</Link>
               )}

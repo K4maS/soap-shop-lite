@@ -28,4 +28,4 @@ USER appuser
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "node_modules/.bin/prisma db push --accept-data-loss && node dist/main.js"]
+CMD ["sh", "-c", "node_modules/.bin/prisma db push --accept-data-loss && node prisma/seed.js && node dist/main.js"]

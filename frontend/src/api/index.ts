@@ -74,11 +74,29 @@ export const exportOrdersCsv = () =>
 export const createPayment = (orderId: string) =>
   api.post<{ confirmUrl: string; paymentId: string }>(`/payments/create/${orderId}`);
 
+// Profile
+export const getProfile = () =>
+  api.get<UserProfile>('/profile');
+
+export const updateProfile = (data: Partial<UserProfile>) =>
+  api.patch<UserProfile>('/profile', data);
+
 // Types
 export interface User {
   id: string;
   phone: string;
   role: 'USER' | 'ADMIN';
+}
+
+export interface UserProfile {
+  id: string;
+  phone: string;
+  role: 'USER' | 'ADMIN';
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  defaultAddress?: string;
+  createdAt?: string;
 }
 
 export interface Product {

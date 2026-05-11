@@ -30,12 +30,16 @@ enum PaymentStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  phone     String   @unique
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
+  id             String   @id @default(cuid())
+  phone          String   @unique
+  role           Role     @default(USER)
+  firstName      String?
+  lastName       String?
+  email          String?  @unique
+  defaultAddress String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  orders         Order[]
 }
 
 model OtpCode {

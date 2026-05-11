@@ -11,6 +11,7 @@ import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import LoginPage from './pages/LoginPage';
 import AdminPage from './pages/AdminPage';
+import ProfilePage from './pages/ProfilePage';
 import AboutPage from './pages/legal/AboutPage';
 import PrivacyPage from './pages/legal/PrivacyPage';
 import TermsPage from './pages/legal/TermsPage';
@@ -34,6 +35,9 @@ export default function App() {
         } />
         <Route path="/orders/:id" element={
           <ProtectedRoute><OrderDetailPage /></ProtectedRoute>
+        } />
+        <Route path="/profile" element={
+          <ProtectedRoute><ProfilePage /></ProtectedRoute>
         } />
         <Route path="/admin" element={
           <ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>

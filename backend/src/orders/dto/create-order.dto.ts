@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsNumber, Min, MinLength, ValidateNested, IsOptional } from 'class-validator';
+import { IsString, IsArray, IsNumber, Min, MinLength, MaxLength, Matches, ValidateNested, IsOptional } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class OrderItemDto {
@@ -18,7 +18,9 @@ export class CreateOrderDto {
   items: OrderItemDto[];
 
   @IsString()
-  @MinLength(5)
+  @MinLength(10, { message: 'Адрес слишком короткий' })
+  @MaxLength(300, { message: 'Адрес слишком длинный' })
+  @Matches(/\b\d{6}\b/, { message: 'Адрес должен содержать почтовый индекс (6 цифр), например: 101000, г. Москва, ул. Примерная, д. 1' })
   address: string;
 
   @IsString()
