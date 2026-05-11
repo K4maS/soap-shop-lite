@@ -1,0 +1,153 @@
+# Мыловарня — интернет-магазин
+
+Production-ready монолитный интернет-магазин: React + NestJS + PostgreSQL + YooKassa.
+
+## Быстрый старт
+
+```bash
+# 1. Скопировать и заполнить env
+cp backend/.env.example backend/.env
+
+# 2. Запустить
+docker compose up --build
+```
+
+Открыть в браузере: http://localhost:3000  
+Бэкенд API: http://localhost:4000/api
+
+---
+
+## Что работает из коробки
+
+| Функция | Статус |
+|---|---|
+| Каталог товаров | ✅ |
+| Карточка товара + корзина | ✅ |
+| Авторизация по SMS (OTP) | ✅ dev-режим (лог в консоль) |
+| Оформление заказа | ✅ |
+| Оплата через YooKassa | ✅ (нужен реальный ShopID) |
+| История заказов | ✅ |
+| Админ-панель (товары + заказы) | ✅ |
+| Экспорт заказов CSV | ✅ |
+| CRM webhook | ✅ (нужен URL) |
+| Юридические страницы | ✅ |
+
+---
+
+## Настройка
+
+### backend/.env
+
+```env
+DATABASE_URL=postgresql://shopuser:shoppassword@postgres:5432/shopdb
+
+JWT_SECRET=замените-на-длинный-случайный-секрет
+JWT_EXPIRES_IN=7d
+
+PORT=4000
+FRONTEND_URL=http://localhost:3000
+NODE_ENV=production
+
+# SMS — DEV режим (код печатается в консоль докера)
+SMS_DEV_MODE=true
+SMS_RU_API_KEY=         # вставьте ключ от sms.ru для продакшена
+
+# YooKassa — оставьте пустым в dev, платёж будет создан без редиректа
+YOOKASSA_SHOP_ID=
+YOOKASSA_SECRET_KEY=
+
+# CRM — оставьте пустым чтобы отключить
+CRM_WEBHOOK_URL=
+CRM_WEBHOOK_SECRET=
+```
+
+### SMS в продакшене
+
+1. Зарегистрируйтесь на [sms.ru](https://sms.ru)
+2. Скопируйте API ключ в `SMS_RU_API_KEY`
+3. Установите `SMS_DEV_MODE=false`
+
+### YooKassa в продакшене
+
+1. Зарегистрируйтесь на [yookassa.ru](https://yookassa.ru)
+2. Получите `ShopID` и `Секретный ключ`
+3. Настройте webhook на `https://ваш-домен.ru/api/payments/webhook`
+4. Добавьте в `.env`
+
+### Первый администратор
+
+После старта войдите с номером `+79000000000` (создан seed'ом).  
+В dev-режиме код появится в логах докера:
+
+```bash
+docker compose logs backend | grep OTP
+```
+
+---
+
+## Структура проекта
+
+```
+soap-shop-lite/
+├── backend/                 # NestJS API
+│   ├── prisma/
+│   │   └── schema.prisma   # Схема БД
+│   └── src/
+│       ├── auth/           # OTP + JWT
+│       ├── products/       # Товары
+│       ├── orders/         # Заказы + CRM
+│       └── payments/       # YooKassa
+├── frontend/               # React + Vite
+│   └── src/
+│       ├── pages/          # Страницы
+│       ├── components/     # Компоненты
+│       ├── store/          # Zustand (корзина + auth)
+│       └── api/            # axios клиент
+└── docker-compose.yml
+```
+
+## API эндпоинты
+
+### Аутентификация
+```
+POST /api/auth/send-otp    — отправить SMS код
+POST /api/auth/verify-otp  — проверить код, получить JWT
+GET  /api/auth/me          — профиль (JWT required)
+```
+
+### Товары
+```
+GET    /api/products         — список активных товаров
+GET    /api/products/:id     — один товар
+GET    /api/products/admin   — все товары (admin)
+POST   /api/products         — создать (admin)
+PATCH  /api/products/:id     — обновить (admin)
+DELETE /api/products/:id     — скрыть (admin)
+```
+
+### Заказы
+```
+POST  /api/orders              — создать заказ (auth)
+GET   /api/orders/my           — мои заказы (auth)
+GET   /api/orders/my/:id       — мой заказ (auth)
+GET   /api/orders              — все заказы (admin)
+GET   /api/orders/export/csv   — экспорт CSV (admin)
+PATCH /api/orders/:id/status   — изменить статус (admin)
+```
+
+### Платежи
+```
+POST /api/payments/create/:orderId  — создать платёж YooKassa (auth)
+POST /api/payments/webhook          — webhook от YooKassa (public)
+```
+
+## Безопасность
+
+- JWT авторизация на всех защищённых эндпоинтах
+- Rate limiting: 5 запросов/мин на send-otp, 10/мин на verify-otp
+- OTP: 3 попытки, 5 мин TTL, не более 3 кодов за 10 мин
+- Helmet (HTTP security headers)
+- CORS ограничен адресом фронтенда
+- Все входные данные валидируются через class-validator
+- Prisma ORM — защита от SQL injection
+- React + без dangerouslySetInnerHTML — защита от XSS
