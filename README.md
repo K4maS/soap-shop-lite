@@ -3,7 +3,7 @@
 Production-ready монолитный интернет-магазин: React + NestJS + PostgreSQL + YooKassa.
 
 ## Быстрый старт
-
+ 
 ```bash
 # 1. Скопировать и заполнить env
 cp backend/.env.example backend/.env
