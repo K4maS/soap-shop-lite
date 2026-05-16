@@ -19,6 +19,8 @@ RUN npm prune --omit=dev --legacy-peer-deps
 # ---- Stage 3: Production ----
 FROM node:20-slim
 
+RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --gid 1001 appgroup \
  && useradd --uid 1001 --gid appgroup --shell /bin/bash --create-home appuser
 
